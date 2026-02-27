@@ -4,9 +4,11 @@ go 1.25.7
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.5.1
-	github.com/slidebolt/sdk-runner v0.0.2
-	github.com/slidebolt/sdk-types v0.0.1
+	github.com/slidebolt/sdk-runner v0.0.4
+	github.com/slidebolt/sdk-types v0.0.3
 )
+
+require github.com/yuin/gopher-lua v1.1.1 // indirect
 
 require (
 	github.com/gorilla/websocket v1.5.3 // indirect
