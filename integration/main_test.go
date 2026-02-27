@@ -5,21 +5,14 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/slidebolt/testrunner/integration/testutil"
 )
 
 func TestMain(m *testing.M) {
-	requiredPlugins := []string{
-		"gateway",
-		"plugin-test-clean",
-		"plugin-test-slow",
-		"plugin-test-flaky",
-	}
-
-	for _, id := range requiredPlugins {
-		if !waitForPlugin(id, 20*time.Second) {
-			fmt.Printf("required plugin %q did not become healthy within timeout\n", id)
-			os.Exit(1)
-		}
+	if !testutil.WaitForPlugin("gateway", 20*time.Second) {
+		fmt.Printf("required plugin %q did not become healthy within timeout\n", "gateway")
+		os.Exit(1)
 	}
 
 	os.Exit(m.Run())
