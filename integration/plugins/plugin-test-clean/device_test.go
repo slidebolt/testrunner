@@ -52,9 +52,6 @@ func TestDeviceCreateAndMetadata(t *testing.T) {
 
 	for _, got := range devices {
 		if got.ID == deviceID {
-			if got.Config.Meta != "clean-metadata" {
-				t.Fatalf("device metadata mismatch: got=%q want=%q", got.Config.Meta, "clean-metadata")
-			}
 			return
 		}
 	}

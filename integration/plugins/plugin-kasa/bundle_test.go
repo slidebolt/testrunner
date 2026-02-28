@@ -90,11 +90,9 @@ func TestKasaCommands(t *testing.T) {
 }
 
 func createDevice(t *testing.T, pluginID, deviceID, mac, ip string) {
-	cfgData, _ := json.Marshal(map[string]string{"ip": ip})
 	dev := types.Device{
 		ID:       deviceID,
 		SourceID: mac,
-		Config:   types.Storage{Data: cfgData},
 	}
 	url := fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID)
 	body, _ := json.Marshal(dev)

@@ -1,0 +1,23 @@
+go 1.25.7
+
+use (
+	../gateway
+	../launcher
+	../plugin-alexa
+	../plugin-automation
+	../plugin-esphome
+	../plugin-frigate
+	../plugin-kasa
+	../plugin-system
+	../plugin-test-clean
+	../plugin-test-flaky
+	../plugin-test-slow
+	../plugin-wiz
+	../plugin-zigbee2mqtt
+	../sdk-entities
+	../sdk-runner
+	../sdk-types
+	../slidebolt
+	./integration
+	./local
+)
