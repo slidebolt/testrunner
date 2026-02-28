@@ -4,21 +4,21 @@ go 1.25.7
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.5.1
-	github.com/slidebolt/sdk-runner v0.0.4
-	github.com/slidebolt/sdk-types v0.0.3
+	github.com/slidebolt/sdk-runner v1.1.0
+	github.com/slidebolt/sdk-types v1.1.0
 )
 
 require github.com/yuin/gopher-lua v1.1.1 // indirect
 
 require (
 	github.com/gorilla/websocket v1.5.3 // indirect
-	github.com/klauspost/compress v1.18.2 // indirect
+	github.com/klauspost/compress v1.18.4 // indirect
 	github.com/nats-io/nats.go v1.49.0
-	github.com/nats-io/nkeys v0.4.12 // indirect
+	github.com/nats-io/nkeys v0.4.15 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/slidebolt/sdk-entities v0.0.2
-	golang.org/x/crypto v0.46.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
+	github.com/slidebolt/sdk-entities v1.1.0
+	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
 )
