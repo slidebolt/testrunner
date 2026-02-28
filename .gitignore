@@ -1,3 +1,4 @@
 /local/*
 !/local/.gitkeep
+!/local/go.mod
 integration/plugins/plugin-alexa/plugin-alexa.test
