@@ -1,2 +1,3 @@
 /local/*
 !/local/.gitkeep
+integration/plugins/plugin-alexa/plugin-alexa.test

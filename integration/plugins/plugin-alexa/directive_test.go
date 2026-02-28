@@ -31,7 +31,10 @@ func TestAlexaDirectiveForwarding(t *testing.T) {
 	// But first, let's get the NATS URL.
 	natsURL := os.Getenv("NATS_URL")
 	if natsURL == "" {
-		natsURL = "nats://127.0.0.1:4222"
+		natsURL = os.Getenv("TEST_NATS_URL")
+	}
+	if natsURL == "" {
+		t.Skip("no NATS URL configured (set NATS_URL or TEST_NATS_URL)")
 	}
 	nc, err := nats.Connect(natsURL)
 	if err != nil {
