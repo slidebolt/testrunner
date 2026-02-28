@@ -104,6 +104,18 @@ func APIBaseURL() string {
 	return runtimeCfg.APIBaseURL
 }
 
+// PluginDataDir returns the on-disk data directory for a plugin, derived from
+// the same .build/ root that holds runtime.json.
+// Returns "" if the runtime file cannot be located.
+func PluginDataDir(pluginID string) string {
+	runtimePath, err := findRuntimeFile()
+	if err != nil {
+		return ""
+	}
+	// runtimePath = {root}/.build/runtime.json → data dir = {root}/.build/data/{pluginID}
+	return filepath.Join(filepath.Dir(runtimePath), "data", pluginID)
+}
+
 func PluginHealthURL(id string) string {
 	if id == "" {
 		return APIBaseURL() + runner.HealthEndpoint
