@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -12,6 +13,14 @@ import (
 	"github.com/slidebolt/sdk-types"
 	"github.com/slidebolt/testrunner/integration/testutil"
 )
+
+func z2mTestDiscoveryRoot() string {
+	root := strings.TrimSpace(os.Getenv("TEST_Z2M_DISCOVERY_ROOT"))
+	if root == "" {
+		root = "slidebolt-test/homeassistant"
+	}
+	return strings.TrimRight(root, "/")
+}
 
 func TestMQTTDiscoveryRoundTrip(t *testing.T) {
 	testutil.RequirePlugin(t, "plugin-zigbee2mqtt")
@@ -27,13 +36,17 @@ func TestMQTTDiscoveryRoundTrip(t *testing.T) {
 	nonce := fmt.Sprintf("%d", time.Now().UnixNano())
 	deviceKey := "it-" + nonce
 	uniqueID := "it-light-" + nonce
-	topic := fmt.Sprintf("homeassistant/light/%s/%s/config", deviceKey, uniqueID)
+	topic := fmt.Sprintf("%s/light/%s/%s/config", z2mTestDiscoveryRoot(), deviceKey, uniqueID)
 	payload := fmt.Sprintf(`{"name":"IT Light %s","unique_id":"%s","device":{"identifiers":["%s"],"name":"IT Device %s","model":"it-model","manufacturer":"it"},"state_topic":"zigbee2mqtt/%s","command_topic":"zigbee2mqtt/%s/set","payload_on":"ON","payload_off":"OFF","value_template":"{{ value_json['state'] }}"}`, nonce, uniqueID, deviceKey, nonce, deviceKey, deviceKey)
 
 	token := client.Publish(topic, 1, true, payload)
 	if ok := token.WaitTimeout(3 * time.Second); !ok || token.Error() != nil {
 		t.Fatalf("failed publishing MQTT discovery payload: %v", token.Error())
 	}
+	defer func() {
+		clear := client.Publish(topic, 1, true, "")
+		_ = clear.WaitTimeout(2 * time.Second)
+	}()
 
 	deviceID := "z2m-device-" + sanitizeForExpectedID(deviceKey)
 	waitForDiscoveredDevice(t, deviceKey, deviceID, 10*time.Second)
