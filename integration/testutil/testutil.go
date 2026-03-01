@@ -147,7 +147,8 @@ func WaitForPlugin(id string, timeout time.Duration) bool {
 }
 
 func RegisteredPlugins() (map[string]types.Registration, error) {
-	resp, err := http.Get(APIBaseURL() + "/api/plugins")
+	client := http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Get(APIBaseURL() + "/api/plugins")
 	if err != nil {
 		return nil, err
 	}

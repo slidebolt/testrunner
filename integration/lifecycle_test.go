@@ -24,7 +24,7 @@ func TestDeviceAndEntityLifecycle(t *testing.T) {
 		t.Fatal("could not locate plugin data directory")
 	}
 
-	client := http.Client{}
+	client := http.Client{Timeout: 2 * time.Second}
 	base := testutil.APIBaseURL() + "/api/plugins/" + pluginID
 	deviceFile := filepath.Join(dataDir, "devices", deviceID+".json")
 	entityFile := filepath.Join(dataDir, "devices", deviceID, "entities", entityID+".json")

@@ -16,7 +16,7 @@ func TestESPHomeLifecycle(t *testing.T) {
 
 	t.Run("Device Listing", func(t *testing.T) {
 		url := fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID)
-		resp, err := http.Get(url)
+		resp, err := (&http.Client{Timeout: 2 * time.Second}).Get(url)
 		if err != nil {
 			t.Fatalf("Failed to fetch devices: %v", err)
 		}
@@ -36,7 +36,7 @@ func TestESPHomeLifecycle(t *testing.T) {
 		for _, dev := range devices {
 			t.Run(fmt.Sprintf("Entity Listing for %s", dev.ID), func(t *testing.T) {
 				entUrl := fmt.Sprintf("%s/api/plugins/%s/devices/%s/entities", testutil.APIBaseURL(), pluginID, dev.ID)
-				entResp, err := http.Get(entUrl)
+				entResp, err := (&http.Client{Timeout: 2 * time.Second}).Get(entUrl)
 				if err != nil {
 					t.Fatalf("Failed to fetch entities for %s: %v", dev.ID, err)
 				}

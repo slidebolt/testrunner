@@ -11,7 +11,7 @@ import (
 )
 
 func TestDistributedSearch(t *testing.T) {
-	client := http.Client{}
+	client := http.Client{Timeout: 2 * time.Second}
 
 	t.Run("Plugin Search Endpoint", func(t *testing.T) {
 		resp, err := client.Get(testutil.APIBaseURL() + "/api/search/plugins?q=*")

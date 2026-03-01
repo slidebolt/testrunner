@@ -15,6 +15,8 @@ func TestAutomationLifecycle(t *testing.T) {
 	const pluginID = "plugin-automation"
 	testutil.RequirePlugin(t, pluginID)
 
+	client := &http.Client{Timeout: 2 * time.Second}
+
 	// 1. Create a Device
 	deviceReq := types.Device{
 		ID:         "auto-dev-1",
@@ -24,7 +26,7 @@ func TestAutomationLifecycle(t *testing.T) {
 	}
 	deviceBody, _ := json.Marshal(deviceReq)
 	
-	resp, err := http.Post(
+	resp, err := client.Post(
 		fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID),
 		"application/json",
 		bytes.NewBuffer(deviceBody),
@@ -47,7 +49,7 @@ func TestAutomationLifecycle(t *testing.T) {
 	}
 	entityBody, _ := json.Marshal(entityReq)
 	
-	resp, err = http.Post(
+	resp, err = client.Post(
 		fmt.Sprintf("%s/api/plugins/%s/devices/%s/entities", testutil.APIBaseURL(), pluginID, "auto-dev-1"),
 		"application/json",
 		bytes.NewBuffer(entityBody),
@@ -61,7 +63,7 @@ func TestAutomationLifecycle(t *testing.T) {
 	}
 
 	// 3. Verify Device exists in List
-	resp, err = http.Get(fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID))
+	resp, err = client.Get(fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID))
 	if err != nil {
 		t.Fatalf("Failed to list devices: %v", err)
 	}
@@ -82,7 +84,7 @@ func TestAutomationLifecycle(t *testing.T) {
 	}
 
 	// 4. Verify Entity exists in List
-	resp, err = http.Get(fmt.Sprintf("%s/api/plugins/%s/devices/%s/entities", testutil.APIBaseURL(), pluginID, "auto-dev-1"))
+	resp, err = client.Get(fmt.Sprintf("%s/api/plugins/%s/devices/%s/entities", testutil.APIBaseURL(), pluginID, "auto-dev-1"))
 	if err != nil {
 		t.Fatalf("Failed to list entities: %v", err)
 	}

@@ -82,7 +82,7 @@ func TestNameWalledGarden(t *testing.T) {
 		t.Fatal("could not locate plugin data directory")
 	}
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: 2 * time.Second}
 	base := testutil.APIBaseURL() + "/api/plugins/" + pluginID
 
 	// ── Devices ──────────────────────────────────────────────────────────────

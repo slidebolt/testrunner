@@ -47,7 +47,8 @@ func TestGatewaySelfRegistered(t *testing.T) {
 }
 
 func TestHTTPConnectivity(t *testing.T) {
-	resp, err := http.Get(testutil.APIBaseURL() + "/api/plugins")
+	client := http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Get(testutil.APIBaseURL() + "/api/plugins")
 	if err != nil || resp.StatusCode != http.StatusOK {
 		t.Fatal("Gateway not responding on /api/plugins")
 	}

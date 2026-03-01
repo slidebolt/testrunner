@@ -11,7 +11,7 @@ import (
 )
 
 func TestSchemaDomains(t *testing.T) {
-	client := http.Client{}
+	client := http.Client{Timeout: 2 * time.Second}
 
 	t.Run("All Domains Returns Non-Empty List", func(t *testing.T) {
 		resp, err := client.Get(testutil.APIBaseURL() + "/api/schema/domains")

@@ -29,7 +29,7 @@ func TestKasaPlugin(t *testing.T) {
 
 	t.Run("Device List", func(t *testing.T) {
 		url := fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID)
-		resp, err := http.Get(url)
+		resp, err := (&http.Client{Timeout: 2 * time.Second}).Get(url)
 		if err != nil {
 			t.Fatalf("failed to list devices: %v", err)
 		}
@@ -125,7 +125,7 @@ func waitForState(t *testing.T, pluginID, deviceID, entityID string, expectedPow
 	url := fmt.Sprintf("%s/api/plugins/%s/devices/%s/entities", testutil.APIBaseURL(), pluginID, deviceID)
 
 	for time.Now().Before(deadline) {
-		resp, err := http.Get(url)
+		resp, err := (&http.Client{Timeout: 2 * time.Second}).Get(url)
 		if err == nil {
 			var entities []types.Entity
 			json.NewDecoder(resp.Body).Decode(&entities)

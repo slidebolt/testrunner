@@ -24,7 +24,7 @@ func TestSystemEventFlow(t *testing.T) {
 
 		success := false
 		for time.Now().Before(deadline) {
-			resp, err := http.Get(url)
+			resp, err := (&http.Client{Timeout: 2 * time.Second}).Get(url)
 			if err == nil {
 				var entities []types.Entity
 				if err := json.NewDecoder(resp.Body).Decode(&entities); err == nil {

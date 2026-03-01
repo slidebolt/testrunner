@@ -14,7 +14,7 @@ import (
 func TestLabelSearch(t *testing.T) {
 	testutil.RequirePlugin(t, pluginID)
 
-	client := http.Client{}
+	client := http.Client{Timeout: 2 * time.Second}
 	deviceID := "label-dev-1"
 	entityID := "label-entity-1"
 	devURL := fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID)

@@ -16,7 +16,7 @@ const pluginID = "plugin-test-clean"
 func TestDeviceCreateAndMetadata(t *testing.T) {
 	testutil.RequirePlugin(t, pluginID)
 
-	client := http.Client{}
+	client := http.Client{Timeout: 2 * time.Second}
 	deviceID := "clean-dev-1"
 	url := fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID)
 

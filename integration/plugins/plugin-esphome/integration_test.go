@@ -13,8 +13,9 @@ func TestESPHomeDiscovery(t *testing.T) {
 	const pluginID = "plugin-esphome"
 	testutil.RequirePlugin(t, pluginID)
 
+	client := &http.Client{Timeout: 2 * time.Second}
 	// List devices
-	resp, err := http.Get(testutil.APIBaseURL() + "/api/plugins/" + pluginID + "/devices")
+	resp, err := client.Get(testutil.APIBaseURL() + "/api/plugins/" + pluginID + "/devices")
 	if err != nil {
 		t.Fatalf("failed to list devices: %v", err)
 	}

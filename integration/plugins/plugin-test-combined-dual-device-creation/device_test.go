@@ -16,7 +16,7 @@ func TestCreateDeviceOnBothPlugins(t *testing.T) {
 	pluginB := "plugin-test-slow"
 	testutil.RequirePlugins(t, pluginA, pluginB)
 
-	client := http.Client{}
+	client := http.Client{Timeout: 2 * time.Second}
 	createAndVerify := func(pluginID, deviceID string) {
 		t.Helper()
 		url := fmt.Sprintf("%s/api/plugins/%s/devices", testutil.APIBaseURL(), pluginID)

@@ -10,7 +10,7 @@ import (
 )
 
 func TestRobustness(t *testing.T) {
-	client := http.Client{}
+	client := http.Client{Timeout: 2 * time.Second}
 	pid := "ghost-plugin"
 
 	t.Run("Non-Existent Plugin Returns 403", func(t *testing.T) {
