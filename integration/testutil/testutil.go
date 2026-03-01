@@ -32,26 +32,28 @@ func loadRuntimeConfig() {
 		runtimeCfg.APIBaseURL = v
 		return
 	}
-	deadline := time.Now().Add(25 * time.Second)
-	for time.Now().Before(deadline) {
-		runtimePath, foundErr := findRuntimeFile()
-		if foundErr == nil {
-			data, err := os.ReadFile(runtimePath)
-			if err == nil {
-				if err := json.Unmarshal(data, &runtimeCfg); err != nil {
-					runtimeErr = fmt.Errorf("failed decoding %s: %w", runtimePath, err)
-					return
-				}
-				if runtimeCfg.APIBaseURL == "" {
-					runtimeErr = fmt.Errorf("%s missing api_base_url", runtimePath)
-					return
-				}
-				return
-			}
-		}
-		time.Sleep(200 * time.Millisecond)
+
+	runtimePath, foundErr := findRuntimeFile()
+	if foundErr != nil {
+		runtimeErr = fmt.Errorf("runtime not defined: set TEST_API_BASE_URL, TEST_RUNTIME_PATH, or provide .build/runtime.json: %w", foundErr)
+		return
 	}
-	runtimeErr = errors.New("runtime not defined: set TEST_API_BASE_URL, TEST_RUNTIME_PATH, or provide .build/runtime.json")
+
+	data, err := os.ReadFile(runtimePath)
+	if err != nil {
+		runtimeErr = fmt.Errorf("failed reading %s: %w", runtimePath, err)
+		return
+	}
+
+	if err := json.Unmarshal(data, &runtimeCfg); err != nil {
+		runtimeErr = fmt.Errorf("failed decoding %s: %w", runtimePath, err)
+		return
+	}
+
+	if runtimeCfg.APIBaseURL == "" {
+		runtimeErr = fmt.Errorf("%s missing api_base_url", runtimePath)
+		return
+	}
 }
 
 func findRuntimeFile() (string, error) {
@@ -162,51 +164,43 @@ func RegisteredPlugins() (map[string]types.Registration, error) {
 
 func RequirePlugin(t *testing.T, id string) {
 	t.Helper()
-	if !waitForRegistration(id, 20*time.Second) {
+	registry, err := RegisteredPlugins()
+	if err != nil {
+		t.Skipf("failed to fetch plugin registry: %v; skipping tests for plugin %q", err, id)
+	}
+
+	if _, ok := registry[id]; !ok {
 		t.Skipf("plugin %q not registered; skipping plugin-specific tests", id)
 	}
-	if !WaitForPlugin(id, 20*time.Second) {
-		t.Skipf("plugin %q not healthy within timeout; skipping plugin-specific tests", id)
+
+	// We still check if the plugin is healthy, but with a very short timeout.
+	if !WaitForPlugin(id, 2 * time.Second) {
+		t.Skipf("plugin %q not healthy; skipping plugin-specific tests", id)
 	}
 }
 
 func RequirePlugins(t *testing.T, ids ...string) {
 	t.Helper()
-	missing := waitForRegistrations(ids, 20*time.Second)
+	registry, err := RegisteredPlugins()
+	if err != nil {
+		t.Skipf("failed to fetch plugin registry: %v; skipping combined tests for plugins %v", err, ids)
+	}
+
+	missing := make([]string, 0)
+	for _, id := range ids {
+		if _, ok := registry[id]; !ok {
+			missing = append(missing, id)
+		}
+	}
+
 	if len(missing) > 0 {
 		t.Skipf("missing required plugin(s): %s; skipping combined test", strings.Join(missing, ", "))
 	}
 
 	for _, id := range ids {
-		if !WaitForPlugin(id, 20*time.Second) {
-			t.Skipf("plugin %q not healthy within timeout; skipping combined test", id)
+		if !WaitForPlugin(id, 2 * time.Second) {
+			t.Skipf("plugin %q not healthy; skipping combined test", id)
 		}
-	}
-}
-
-func waitForRegistration(id string, timeout time.Duration) bool {
-	return len(waitForRegistrations([]string{id}, timeout)) == 0
-}
-
-func waitForRegistrations(ids []string, timeout time.Duration) []string {
-	deadline := time.Now().Add(timeout)
-	for {
-		registry, err := RegisteredPlugins()
-		if err == nil {
-			missing := make([]string, 0)
-			for _, id := range ids {
-				if _, ok := registry[id]; !ok {
-					missing = append(missing, id)
-				}
-			}
-			if len(missing) == 0 || time.Now().After(deadline) {
-				return missing
-			}
-		}
-		if time.Now().After(deadline) {
-			return append([]string(nil), ids...)
-		}
-		time.Sleep(200 * time.Millisecond)
 	}
 }
 

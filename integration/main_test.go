@@ -10,7 +10,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	if !testutil.WaitForPlugin("gateway", 20*time.Second) {
+	if !testutil.WaitForPlugin("gateway", 2*time.Second) {
 		fmt.Printf("required plugin %q did not become healthy within timeout\n", "gateway")
 		os.Exit(1)
 	}
