@@ -3,7 +3,6 @@ package testutil
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -165,29 +164,66 @@ func RegisteredPlugins() (map[string]types.Registration, error) {
 
 func RequirePlugin(t *testing.T, id string) {
 	t.Helper()
-	registry, err := RegisteredPlugins()
+
+	var registry map[string]types.Registration
+	var err error
+
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		registry, err = RegisteredPlugins()
+		if err == nil {
+			if _, ok := registry[id]; ok {
+				goto healthy
+			}
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
+
 	if err != nil {
 		t.Skipf("failed to fetch plugin registry: %v; skipping tests for plugin %q", err, id)
 	}
 
 	if _, ok := registry[id]; !ok {
-		t.Skipf("plugin %q not registered; skipping plugin-specific tests", id)
+		t.Skipf("plugin %q not registered after timeout; skipping plugin-specific tests", id)
 	}
 
+healthy:
 	// We still check if the plugin is healthy, but with a very short timeout.
-	if !WaitForPlugin(id, 2 * time.Second) {
+	if !WaitForPlugin(id, 2*time.Second) {
 		t.Skipf("plugin %q not healthy; skipping plugin-specific tests", id)
 	}
 }
 
 func RequirePlugins(t *testing.T, ids ...string) {
 	t.Helper()
-	registry, err := RegisteredPlugins()
+
+	var registry map[string]types.Registration
+	var err error
+	var missing []string
+
+	deadline := time.Now().Add(5 * time.Second)
+	for time.Now().Before(deadline) {
+		registry, err = RegisteredPlugins()
+		if err == nil {
+			allFound := true
+			for _, id := range ids {
+				if _, ok := registry[id]; !ok {
+					allFound = false
+					break
+				}
+			}
+			if allFound {
+				goto healthy
+			}
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
+
 	if err != nil {
 		t.Skipf("failed to fetch plugin registry: %v; skipping combined tests for plugins %v", err, ids)
 	}
 
-	missing := make([]string, 0)
+	missing = make([]string, 0)
 	for _, id := range ids {
 		if _, ok := registry[id]; !ok {
 			missing = append(missing, id)
@@ -195,11 +231,12 @@ func RequirePlugins(t *testing.T, ids ...string) {
 	}
 
 	if len(missing) > 0 {
-		t.Skipf("missing required plugin(s): %s; skipping combined test", strings.Join(missing, ", "))
+		t.Skipf("missing required plugin(s) after timeout: %s; skipping combined test", strings.Join(missing, ", "))
 	}
 
+healthy:
 	for _, id := range ids {
-		if !WaitForPlugin(id, 2 * time.Second) {
+		if !WaitForPlugin(id, 2*time.Second) {
 			t.Skipf("plugin %q not healthy; skipping combined test", id)
 		}
 	}
